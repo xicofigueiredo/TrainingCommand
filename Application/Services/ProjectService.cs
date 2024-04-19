@@ -10,11 +10,13 @@ public class ProjectService
     private readonly IProjectRepository _projectRepository;
 
     private readonly ProjectGateway _projectGateway;
+    private readonly ProjectGatewayUpdate _projectGatewayUpdate;
 
-    public ProjectService(IProjectRepository projectRepository, ProjectGateway projectGateway)
+    public ProjectService(IProjectRepository projectRepository, ProjectGateway projectGateway, ProjectGatewayUpdate projectGatewayUpdate)
     {
         _projectRepository = projectRepository;
         _projectGateway = projectGateway;
+        _projectGatewayUpdate = projectGatewayUpdate;
     }
 
     public async Task<IEnumerable<ProjectDTO>> GetAll()
@@ -43,7 +45,7 @@ public class ProjectService
         return null;
     }
 
-    public async Task<ProjectDTO> Add(ProjectDTO projectDTO, List<string> errorMessages, bool cameFromSwagger)
+    public async Task<ProjectDTO> AddFromAMQP(ProjectDTO projectDTO, List<string> errorMessages)
     {
         bool pExists = await _projectRepository.ProjectExists(projectDTO.Id, projectDTO.Name);
         if (pExists)
@@ -57,12 +59,7 @@ public class ProjectService
             Project project = ProjectDTO.ToDomain(projectDTO);
             Project projectSaved = await _projectRepository.Add(project);
             ProjectDTO projectDTOSaved = ProjectDTO.ToDTO(projectSaved);
-
-            if (cameFromSwagger)
-            {
-                string jsonMessage = ProjectGatewayDTO.Serialize(projectDTOSaved);
-                _projectGateway.publish(jsonMessage);
-            }
+            
             return projectDTOSaved;
         }
         catch (ArgumentException ex)
@@ -71,8 +68,18 @@ public class ProjectService
             return null;
         }
     }
+
+    public async Task<ProjectDTO> AddFromRest(ProjectDTO projectDTO, List<string> errorMessages)
+    {
+        ProjectDTO projectDTOSaved = await AddFromAMQP(projectDTO, errorMessages);
+        
+        string jsonMessage = ProjectGatewayDTO.Serialize(projectDTOSaved);
+        _projectGateway.publish(jsonMessage);
+        
+        return projectDTOSaved;
+    }
     
-    public async Task<bool> Update(long id, ProjectDTO projectDTO, List<string> errorMessages)
+    public async Task<bool> Update(long id, ProjectDTO projectDTO, List<string> errorMessages, bool cameFromSwagger)
     {
         Project project = await _projectRepository.GetProjectByIdAsync(id);
 
@@ -80,6 +87,13 @@ public class ProjectService
         {
             ProjectDTO.UpdateToDomain(project, projectDTO);
             await _projectRepository.Update(project, errorMessages);
+
+            if (cameFromSwagger)
+            {
+                string jsonMessage = ProjectGatewayDTO.Serialize(projectDTO);
+                _projectGatewayUpdate.publish(jsonMessage);
+            }
+            
             return true;
         }
         else

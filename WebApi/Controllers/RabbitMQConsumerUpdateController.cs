@@ -7,7 +7,7 @@ using Application.Services;
 
 namespace WebApi.Controllers;
 
-public class RabbitMQConsumerController : IRabbitMQConsumerController
+public class RabbitMQConsumerUpdateController : IRabbitMQConsumerUpdateController
 {
     private IConnection _connection;
     private IModel _channel;
@@ -16,21 +16,21 @@ public class RabbitMQConsumerController : IRabbitMQConsumerController
     List<string> _errorMessages = new List<string>();
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public RabbitMQConsumerController(IServiceScopeFactory serviceScopeFactory)
+    public RabbitMQConsumerUpdateController(IServiceScopeFactory serviceScopeFactory)
     {
         _serviceScopeFactory = serviceScopeFactory;
-        string nameProject = "project_create";
+        string nameProject = "project_update";
         var factory = new ConnectionFactory { HostName = "localhost" };
         _connection = factory.CreateConnection();
         _channel = _connection.CreateModel();
-
+        
         _channel.ExchangeDeclare(exchange: nameProject, type: ExchangeType.Fanout);
         
         // _queueName = _channel.QueueDeclare().QueueName;
         // _channel.QueueBind(queue: _queueName,
         //     exchange: nameProject,
         //     routingKey: string.Empty);
-        Console.WriteLine(" [*] Waiting for messages.");
+        Console.WriteLine(" [*] Waiting for messages update.");
     }
     
     public void ConfigQueue(string queueName)
@@ -44,7 +44,7 @@ public class RabbitMQConsumerController : IRabbitMQConsumerController
             arguments: null);
 
         _channel.QueueBind(queue: _queueName,
-            exchange: "project_create",
+            exchange: "project_update",
             routingKey: string.Empty);
     }
     public void StartConsuming()
@@ -56,13 +56,13 @@ public class RabbitMQConsumerController : IRabbitMQConsumerController
             var message = Encoding.UTF8.GetString(body);
             ProjectDTO deserializedObject = ProjectGatewayDTO.ToDTO(message);
             Console.WriteLine($" [x] Received {deserializedObject}");
-            Console.WriteLine($" [x] Start checking if exists.");
+            Console.WriteLine($" [x] Start updating.");
             
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var projectService = scope.ServiceProvider.GetRequiredService<ProjectService>();
                 
-                ProjectDTO projectResultDTO = projectService.AddFromAMQP(deserializedObject, _errorMessages).Result;
+                bool result = projectService.Update(deserializedObject.Id, deserializedObject, _errorMessages, false).Result;
             }
         };
         _channel.BasicConsume(queue: _queueName,

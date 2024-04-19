@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
-
 namespace WebApi.Controllers;
 
-public interface IRabbitMQConsumerController
+public interface IRabbitMQConsumerUpdateController
 {
     void StartConsuming();
     void ConfigQueue(string queueName);

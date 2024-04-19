@@ -18,25 +18,25 @@ public class ProjectController : Controller
         _projectService = projectService;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetProjects()
-    {
-        IEnumerable<ProjectDTO> projectsDTO = await _projectService.GetAll();
-        return Ok(projectsDTO);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<ProjectDTO>> GetProjectById(long id)
-    {
-        var projectDTO = await _projectService.GetById(id);
-        if (projectDTO is not null)
-        {
-            return Ok(projectDTO);
-        }
-
-        return NotFound();
-    }
-
+    // [HttpGet]
+    // public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetProjects()
+    // {
+    //     IEnumerable<ProjectDTO> projectsDTO = await _projectService.GetAll();
+    //     return Ok(projectsDTO);
+    // }
+    // //
+    // [HttpGet("{id}")]
+    // private async Task<ActionResult<ProjectDTO>> GetProjectById(long id)
+    // {
+    //     var projectDTO = await _projectService.GetById(id);
+    //     if (projectDTO is not null)
+    //     {
+    //         return Ok(projectDTO);
+    //     }
+    //
+    //     return NotFound();
+    // }
+    
     [HttpPut("{id}")]
     public async Task<IActionResult> PutProject(long id, ProjectDTO projectDTO)
     {
@@ -44,23 +44,23 @@ public class ProjectController : Controller
         {
             return BadRequest();
         }
-
-        bool wasUpdated = await _projectService.Update(id, projectDTO, _errorMessages);
+    
+        bool wasUpdated = await _projectService.Update(id, projectDTO, _errorMessages, true);
         if (!wasUpdated)
         {
             return BadRequest(_errorMessages);
         }
-
+    
         return Ok();
     }
 
     [HttpPost]
     public async Task<ActionResult<IEnumerable<ProjectDTO>>> PostProject(ProjectDTO projectDTO)
     {
-        ProjectDTO projectResultDTO = await _projectService.Add(projectDTO, _errorMessages, true);
+        ProjectDTO projectResultDTO = await _projectService.AddFromRest(projectDTO, _errorMessages);
         if (projectResultDTO is not null)
         {
-            return CreatedAtAction(nameof(GetProjectById), new { id = projectDTO.Id }, projectResultDTO);
+            return Created("", projectResultDTO);
         }
         else
         {
