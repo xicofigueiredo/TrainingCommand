@@ -72,10 +72,12 @@ public class ProjectService
     public async Task<ProjectDTO> AddFromRest(ProjectDTO projectDTO, List<string> errorMessages)
     {
         ProjectDTO projectDTOSaved = await AddFromAMQP(projectDTO, errorMessages);
-        
-        string jsonMessage = ProjectGatewayDTO.Serialize(projectDTOSaved);
-        _projectGateway.publish(jsonMessage);
-        
+
+        if (projectDTOSaved is not null)
+        {
+            string jsonMessage = ProjectGatewayDTO.Serialize(projectDTOSaved);
+            _projectGateway.publish(jsonMessage);
+        }
         return projectDTOSaved;
     }
     
