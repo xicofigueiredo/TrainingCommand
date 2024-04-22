@@ -20,8 +20,12 @@ public class AbsanteeContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<ProjectDataModel>()
-            .HasKey(c => new { c.Id, c.Name });
+        // modelBuilder.Entity<ProjectDataModel>()
+        //     // .HasKey(c => new { c.Id, c.Name });
+        //     // .HasIndex(p => p.Name)
+        //     // .IsUnique();
+        //     .Property(p => p.Id)
+        //     .HasValueGenerator();
 
         // modelBuilder.Entity<ProjectDataModel>()
         //     .Property(c => c.Id)
