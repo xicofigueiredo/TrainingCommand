@@ -20,7 +20,14 @@ public class AbsanteeContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<ProjectDataModel>()
+            .HasKey(c => new { c.Id, c.Name });
+
+        // modelBuilder.Entity<ProjectDataModel>()
+        //     .Property(c => c.Id)
+        //     .ValueGeneratedOnAdd();
+
+        //base.OnModelCreating(modelBuilder);
 
         // modelBuilder.Entity<HolidayDataModel>()
         // 	.HasOne(x => x.Colaborator)
@@ -36,7 +43,7 @@ public class AbsanteeContext : DbContext
 
         // modelBuilder.Entity<Colaborator>()
         // 	.HasKey(c => c.Id);
-			
+
         // modelBuilder.Entity<Colaborator>()
         // 	.HasKey(c => c.Email);
 
