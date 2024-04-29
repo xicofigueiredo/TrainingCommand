@@ -11,6 +11,7 @@ public class ProjectService
 
     private readonly ProjectGateway _projectGateway;
     private readonly ProjectGatewayUpdate _projectGatewayUpdate;
+    private readonly SagaGateway _sagaGateway;
 
     public ProjectService(IProjectRepository projectRepository, ProjectGateway projectGateway, ProjectGatewayUpdate projectGatewayUpdate)
     {
@@ -103,6 +104,12 @@ public class ProjectService
             errorMessages.Add("Not found");
             return false;
         }
+    }
+
+    public void NothingToSeeHereJustReturnOKForTesting()
+    {
+        string jsonMessage = "Nothing to see here, just return OK for testing.";
+        _sagaGateway.publish(jsonMessage);
     }
     
 }

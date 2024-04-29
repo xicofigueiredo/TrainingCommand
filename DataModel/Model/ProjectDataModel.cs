@@ -3,10 +3,9 @@ using Domain.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataModel.Model;
-
+[index: Index(nameof(Name), IsUnique = true)]
 public class ProjectDataModel
 {
-    [Key]
     public long Id { get; set; }
     public string Name { get; set; }
     public DateOnly StartDate { get; set; }

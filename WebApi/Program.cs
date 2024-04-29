@@ -39,7 +39,7 @@ builder.Services.AddTransient<ProjectMapper>();
 
 builder.Services.AddTransient<ProjectGateway>();
 builder.Services.AddTransient<ProjectGatewayUpdate>();
-builder.Services.AddTransient<ProjectAMQPService>();
+// builder.Services.AddTransient<ProjectAMQPService>();
 
 builder.Services.AddScoped<ProjectService>();
 
