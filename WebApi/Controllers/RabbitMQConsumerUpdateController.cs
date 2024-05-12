@@ -12,23 +12,24 @@ public class RabbitMQConsumerUpdateController : IRabbitMQConsumerUpdateControlle
     private IConnection _connection;
     private IModel _channel;
     private string _queueName;
-    private readonly ProjectService _projectService;
+    private string nameTraining;
+    private readonly TrainingService _trainingService;
     List<string> _errorMessages = new List<string>();
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
     public RabbitMQConsumerUpdateController(IServiceScopeFactory serviceScopeFactory)
     {
         _serviceScopeFactory = serviceScopeFactory;
-        string nameProject = "project_update";
+        nameTraining = "training_update";
         var factory = new ConnectionFactory { HostName = "localhost" };
         _connection = factory.CreateConnection();
         _channel = _connection.CreateModel();
         
-        _channel.ExchangeDeclare(exchange: nameProject, type: ExchangeType.Fanout);
+        _channel.ExchangeDeclare(exchange: nameTraining, type: ExchangeType.Fanout);
         
         // _queueName = _channel.QueueDeclare().QueueName;
         // _channel.QueueBind(queue: _queueName,
-        //     exchange: nameProject,
+        //     exchange: nameTraining,
         //     routingKey: string.Empty);
         Console.WriteLine(" [*] Waiting for messages update.");
     }
@@ -44,7 +45,7 @@ public class RabbitMQConsumerUpdateController : IRabbitMQConsumerUpdateControlle
             arguments: null);
 
         _channel.QueueBind(queue: _queueName,
-            exchange: "project_update",
+            exchange: nameTraining,
             routingKey: string.Empty);
     }
     public void StartConsuming()
@@ -54,15 +55,15 @@ public class RabbitMQConsumerUpdateController : IRabbitMQConsumerUpdateControlle
         {
             byte[] body = ea.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
-            ProjectDTO deserializedObject = ProjectGatewayDTO.ToDTO(message);
+            TrainingDTO deserializedObject = TrainingGatewayDTO.ToDTO(message);
             Console.WriteLine($" [x] Received {deserializedObject}");
             Console.WriteLine($" [x] Start updating.");
             
             using (var scope = _serviceScopeFactory.CreateScope())
             {
-                var projectService = scope.ServiceProvider.GetRequiredService<ProjectService>();
+                var trainingService = scope.ServiceProvider.GetRequiredService<TrainingService>();
                 
-                bool result = projectService.Update(deserializedObject.Id, deserializedObject, _errorMessages, false).Result;
+                bool result = trainingService.Update(deserializedObject.Id, deserializedObject, _errorMessages, false).Result;
             }
         };
         _channel.BasicConsume(queue: _queueName,

@@ -2,7 +2,7 @@ using Domain.Factory;
 
 namespace Domain.Model;
 
-public interface IProject
+public interface ITraining
 {
     long Id {get;}
     string Name {get;}
@@ -12,5 +12,5 @@ public interface IProject
     public bool isValidParameters(string strName, DateOnly dateStart, DateOnly? dateEnd); 
     // public List<IAssociate> getListByColaborator(IColaborator colaborator);
     // public List<IAssociate> getListByColaboratorInRange(IColaborator colaborator, DateOnly startDate, DateOnly? endDate);
-    // public List<IColaborator> getListColaboratorByProject();
+    // public List<IColaborator> getListColaboratorByTraining();
 }

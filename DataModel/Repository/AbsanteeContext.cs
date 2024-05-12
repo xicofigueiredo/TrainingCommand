@@ -15,21 +15,21 @@ public class AbsanteeContext : DbContext
         Database.EnsureCreated();
     }
 
-    public virtual DbSet<ProjectDataModel> Projects { get; set; } = null!;
+    public virtual DbSet<TrainingDataModel> Training { get; set; } = null!;
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<ProjectDataModel>()
+        modelBuilder.Entity<TrainingDataModel>()
             .HasIndex(p => p.Name);
-        // modelBuilder.Entity<ProjectDataModel>()
+        // modelBuilder.Entity<TrainingDataModel>()
         //     // .HasKey(c => new { c.Id, c.Name });
         //     // .HasIndex(p => p.Name)
         //     // .IsUnique();
         //     .Property(p => p.Id)
         //     .HasValueGenerator();
 
-        // modelBuilder.Entity<ProjectDataModel>()
+        // modelBuilder.Entity<TrainingDataModel>()
         //     .Property(c => c.Id)
         //     .ValueGeneratedOnAdd();
 

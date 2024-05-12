@@ -24,8 +24,8 @@ namespace WebApi
                 {
                     options.UseSqlServer(Configuration["ConnectionString"]);
                 });
-            // Register ProjectService
-            services.AddScoped<ProjectService>();
+            // Register TrainingService
+            services.AddScoped<TrainingService>();
         }
 
         public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment env)

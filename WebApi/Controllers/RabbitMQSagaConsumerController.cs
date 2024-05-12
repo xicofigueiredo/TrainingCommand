@@ -1,6 +1,7 @@
 using System.Text;
 using Application.DTO;
 using Application.Services;
+using Domain.Model;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -11,19 +12,19 @@ public class RabbitMQSagaConsumerController
     private IConnection _connection;
     private IModel _channel;
     private string _queueName;
-    private readonly ProjectService _PrjectService;
+    private readonly TrainingService _trainingService;
     List<string> _errorMessages = new List<string>();
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
     public RabbitMQSagaConsumerController(IServiceScopeFactory serviceScopeFactory)
     {
         _serviceScopeFactory = serviceScopeFactory;
-        string nameProject = "project_saga";
+        string nameTraining = "training_saga";
         var factory = new ConnectionFactory { HostName = "localhost" };
         _connection = factory.CreateConnection();
         _channel = _connection.CreateModel();
         
-        _channel.ExchangeDeclare(exchange: nameProject, type: ExchangeType.Fanout);
+        _channel.ExchangeDeclare(exchange: nameTraining, type: ExchangeType.Fanout);
         
         Console.WriteLine(" [*] Waiting for messages saga.");
     }
@@ -39,7 +40,7 @@ public class RabbitMQSagaConsumerController
             arguments: null);
 
         _channel.QueueBind(queue: _queueName,
-            exchange: "project_saga",
+            exchange: "training_saga",
             routingKey: string.Empty);
     }
 
@@ -50,13 +51,13 @@ public class RabbitMQSagaConsumerController
         {
             byte[] body = ea.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
-            // ProjectDTO deserializedObject = ProjectGatewayDTO.ToDTO(message);
+            // TrainingDTO deserializedObject = TrainingGatewayDTO.ToDTO(message);
             Console.WriteLine($" [x] Received {message}");
             using (var scope = _serviceScopeFactory.CreateScope())
             {
-                var projectService = scope.ServiceProvider.GetRequiredService<ProjectService>();
+                var trainingService = scope.ServiceProvider.GetRequiredService<TrainingService>();
 
-                projectService.NothingToSeeHereJustReturnOKForTesting();
+                trainingService.NothingToSeeHereJustReturnOKForTesting();
             }
         };
         _channel.BasicConsume(queue: _queueName,

@@ -12,8 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 var config = builder.Configuration;
 var connectionString = config.GetConnectionString("AbsanteeDatabase" + args[0]);
-var projectQueueName = config["ProjectQueues:" + args[0]];
-var projectUpdateQueueName = config["ProjectUpdateQueues:" + args[0]];
+var trainingQueueName = config["TrainingQueues:" + args[0]];
+var trainingUpdateQueueName = config["TrainingUpdateQueues:" + args[0]];
 
 builder.Services.AddControllers();
 
@@ -35,14 +35,14 @@ builder.Services.AddDbContext<AbsanteeContext>(opt =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddTransient<IProjectRepository, ProjectRepository>();
-builder.Services.AddTransient<IProjectFactory, ProjectFactory>();
-builder.Services.AddTransient<ProjectMapper>();
-builder.Services.AddTransient<ProjectService>();
-builder.Services.AddTransient<ProjectGatewayUpdate>();
-builder.Services.AddTransient<ProjectGateway>();
+builder.Services.AddTransient<ITrainingRepository, TrainingRepository>();
+builder.Services.AddTransient<ITrainingFactory, TrainingFactory>();
+builder.Services.AddTransient<TrainingMapper>();
+builder.Services.AddTransient<TrainingService>();
+builder.Services.AddTransient<TrainingGatewayUpdate>();
+builder.Services.AddTransient<TrainingGateway>();
 
-builder.Services.AddScoped<ProjectService>();
+builder.Services.AddScoped<TrainingService>();
 
 builder.Services.AddSingleton<IRabbitMQConsumerController, RabbitMQConsumerController>();
 builder.Services.AddSingleton<IRabbitMQConsumerUpdateController, RabbitMQConsumerUpdateController>();
@@ -64,11 +64,11 @@ app.UseCors("AllowAllOrigins");
 app.UseAuthorization();
 
 var rabbitMQConsumerService = app.Services.GetRequiredService<IRabbitMQConsumerController>();
-rabbitMQConsumerService.ConfigQueue(projectQueueName);
+rabbitMQConsumerService.ConfigQueue(trainingQueueName);
 rabbitMQConsumerService.StartConsuming();
 
 var rabbitMQConsumerUpdateService = app.Services.GetRequiredService<IRabbitMQConsumerUpdateController>();
-rabbitMQConsumerUpdateService.ConfigQueue(projectUpdateQueueName);
+rabbitMQConsumerUpdateService.ConfigQueue(trainingUpdateQueueName);
 rabbitMQConsumerUpdateService.StartConsuming();
 
 app.MapControllers();

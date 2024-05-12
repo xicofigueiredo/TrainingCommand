@@ -3,7 +3,7 @@ using Domain.Factory;
 
 namespace Domain.Model;
 
-public class Project : IProject
+public class Training : ITraining
 {
     public long Id { get; set; }
     private string _strName;
@@ -24,9 +24,9 @@ public class Project : IProject
         get { return _dateEnd; }
     }
 
-    protected Project() {}
+    protected Training() {}
 
-    public Project(string strName, DateOnly dateStart, DateOnly? dateEnd)
+    public Training(string strName, DateOnly dateStart, DateOnly? dateEnd)
     {
         if( !isValidParameters(strName, dateStart, dateEnd) ) {
             throw new ArgumentException("Invalid arguments.");

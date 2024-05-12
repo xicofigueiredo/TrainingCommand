@@ -3,18 +3,18 @@ using System.Text;
 
 namespace Gateway;
 
-public class ProjectGatewayUpdate
+public class TrainingGatewayUpdate
 {
     private IConnection _connection;
     private IModel _channel;
     private string nameExchange;
     
-    public ProjectGatewayUpdate()
+    public TrainingGatewayUpdate()
     {
         var factory = new ConnectionFactory { HostName = "localhost" };
         _connection = factory.CreateConnection();
         _channel = _connection.CreateModel();
-        nameExchange = "project_update";
+        nameExchange = "training_update";
 
         _channel.ExchangeDeclare(exchange: nameExchange, type: ExchangeType.Fanout);
     }
